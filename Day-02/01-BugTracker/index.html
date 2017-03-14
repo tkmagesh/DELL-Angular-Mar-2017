@@ -9,9 +9,9 @@
 		3. Toggle the 'closed' status of a bug	- done
 		4. Remove closed bugs					- done
 		5. Display statistics					- done
-		6. Search the bugs
-		7. Sort the bugs
-		8. Improve the bug display
+		6. Search the bugs						- done
+		7. Sort the bugs						- done			
+		8. Improve the bug display				- done
 		9. Persist the bugs in the localStorage
 		10. Display createdAt for each bug
 		11. Persist the bugs in the server
@@ -54,7 +54,8 @@
 
 		bugTrackerApp.value("defaultBugName", '[Default Bug]');
 
-		function getBugOperations(defaultBugName){
+		
+		bugTrackerApp.factory("bugOperations",  function(defaultBugName){
 			var currentBugId = 0;
 			return {
 				createNew : function(bugName){
@@ -69,8 +70,7 @@
 					bug.isClosed = !bug.isClosed;
 				}
 			}
-		}
-		bugTrackerApp.factory("bugOperations",  getBugOperations);
+		});
 
 		
 
@@ -86,6 +86,7 @@
 			$scope.addNew = function(bugName){
 				var newBug = bugOperations.createNew(bugName);
 				$scope.bugs.push(newBug);
+				$scope.newBugName = '';
 			};
 
 			$scope.toggle = function(bug){
@@ -97,17 +98,52 @@
 					return !bug.isClosed;
 				});
 			};
+		});
 
-			$scope.getClosedCount = function(){
+		bugTrackerApp.value('defaultTrimLength', 40);
+
+		bugTrackerApp.filter("trimText", function(defaultTrimLength){
+			return function(data, trimLength){
+				trimLength = trimLength || defaultTrimLength;
+				return data.length < trimLength ? data : data.substr(0,trimLength) + '...';
+			};
+		});
+
+		/*
+		bugTrackerApp.filter("closedCount", function(){
+			return function(bugs){
 				var result = 0;
-				for(var i=0; i < $scope.bugs.length; i++)
-					if ($scope.bugs[i].isClosed)
+				for(var i=0; i < bugs.length; i++)
+					if (bugs[i].isClosed)
 						++result;
 				return result;
 			};
-
-			
+		})
+		*/
+		/*
+		bugTrackerApp.filter("closedCount", function(){
+			return function(bugs){
+				return bugs.filter(function(bug){
+					return bug.isClosed;
+				}).length;
+			};
 		});
+		*/
+		/*bugTrackerApp.filter("closedCount", function($filter){
+			var builtinFilterFilter = $filter('filter');
+			return function(bugs){
+				return builtinFilterFilter(bugs, {isClosed : true}).length;
+			}
+		});*/
+
+		bugTrackerApp.filter("closedCount", function(){
+			return function(bugs){
+				return bugs.reduce(function(result, bug){
+					return bug.isClosed ? ++result : result;
+				}, 0);
+			};
+		});
+
 	</script>
 </head>
 <body ng-app="bugTrackerApp">
@@ -115,21 +151,29 @@
 	<hr>
 	<div class="content" ng-controller="bugsController">
 		<section class="stats">
-			<span class="closed">{{getClosedCount()}}</span>
+			<span class="closed">{{ bugs | closedCount }}</span>
+			<!-- <span class="closed">{{ (bugs | filter:{isClosed : true}).length }}</span> -->
 			<span> / </span>
 			<span>{{bugs.length}}</span>
 		</section>
 		<section class="search">
 			<label for="">Search :</label>
-			<input type="text" ng-model="searchBugName">
+			<input type="text" ng-model="searchBug.name">
 			<label for="">Closed ? :</label>
-			<input type="checkbox" ng-model="searchBugIsClosed">
+			<input type="checkbox" ng-model="searchBug.isClosed" ng-init="searchBug.isClosed=''">
+			<input type="button" value="Show All" ng-click="searchBug.isClosed=''" ng-show="searchBug.isClosed !== ''">
 		</section>
 		<section class="sort">
 			<label for="">Order By :</label>
-			<input type="text" name="" id="">
+			<!-- <input type="text" ng-model="sortBugBy"> -->
+			<select name="" id="" ng-model="sortBugBy">
+				<option value="id">Id</option>
+				<option value="name">Name</option>
+				<option value="isClosed">Status</option>
+			</select>
+
 			<label for="">Descending ? :</label>
-			<input type="checkbox" name="" id="">
+			<input type="checkbox" ng-model="sortBugDescending">
 		</section>
 		<section class="edit">
 			<label for="">New Bug :</label>
@@ -138,9 +182,9 @@
 		</section>
 		<section class="list">
 			<ol>
-				<li ng-repeat="bug in ( bugs | filter:{name : searchBugName, isClosed : searchBugIsClosed} ) ">
+				<li ng-repeat="bug in ( bugs | filter:searchBug | orderBy:sortBugBy:sortBugDescending) ">
 					<span class="bugname" ng-click="toggle(bug)" ng-class="{closed : bug.isClosed}">
-						{{bug.name}}
+						{{bug.name | trimText:40}}
 					</span>
 					<span> <i>[{{bug.id}}]</i> </span>
 					<div class="datetime">[Created At]</div>
