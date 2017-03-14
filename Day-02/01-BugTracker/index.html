@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<title>Bug Tracker</title>
 	<script type="text/usecase">
-		1. Add a new bug
-		2. List the bugs
+		1. Add a new bug						- done
+		2. List the bugs						- done
 		3. Toggle the 'closed' status of a bug
 		4. Remove closed bugs
 		5. Display statistics
@@ -48,15 +48,37 @@
 			font-style: italic;
 		}
 	</style>
+	<script src="angular.js"></script>
+	<script>
+		var bugTrackerApp = angular.module("bugTrackerApp", []);
+
+		bugTrackerApp.controller("bugsController", function($scope){
+			
+			$scope.bugs = [];
+			
+			$scope.addNew = function(bugName){
+				var newBug = {
+					name : bugName,
+					isClosed : false
+				};
+				$scope.bugs.push(newBug);
+			};
+
+			$scope.toggle = function(bug){
+				bug.isClosed = !bug.isClosed;
+			};
+
+		});
+	</script>
 </head>
-<body>
+<body ng-app="bugTrackerApp">
 	<h1>Bug Tracker</h1>
 	<hr>
-	<div class="content">
+	<div class="content" ng-controller="bugsController">
 		<section class="stats">
 			<span class="closed">2</span>
 			<span> / </span>
-			<span>5</span>
+			<span>{{bugs.length}}</span>
 		</section>
 		<section class="search">
 			<label for="">Search :</label>
@@ -72,17 +94,13 @@
 		</section>
 		<section class="edit">
 			<label for="">New Bug :</label>
-			<input type="text">
-			<input type="button" value="Save">
+			<input type="text" ng-model="newBugName">
+			<input type="button" value="Save" ng-click="addNew(newBugName)">
 		</section>
 		<section class="list">
 			<ol>
-				<li>
-					<span class="bugname">This is bug - 1</span>
-					<div class="datetime">[Created At]</div>
-				</li>
-				<li>
-					<span class="bugname closed">This is bug - 2</span>
+				<li ng-repeat="bug in bugs">
+					<span class="bugname" ng-click="toggle(bug)">{{bug}}</span>
 					<div class="datetime">[Created At]</div>
 				</li>
 			</ol>
