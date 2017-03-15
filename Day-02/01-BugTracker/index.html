@@ -71,22 +71,21 @@
 		bugTrackerApp.value("defaultBugName", '[Default Bug]');
 
 		
-		bugTrackerApp.factory("bugOperations",  function(defaultBugName){
+		bugTrackerApp.service("bugOperations",  function(defaultBugName){
 			
-			return {
-				createNew : function(id, bugName){
-					return {
-						id : id,
-						name : bugName || defaultBugName,
-						isClosed : false,
-						createdAt : new Date()
-					}
-				},
-
-				toggle : function(bug){
-					bug.isClosed = !bug.isClosed;
+			this.createNew = function(id, bugName){
+				return {
+					id : id,
+					name : bugName || defaultBugName,
+					isClosed : false,
+					createdAt : new Date()
 				}
+			},
+
+			this.toggle = function(bug){
+				bug.isClosed = !bug.isClosed;
 			}
+			
 		});
 
 		bugTrackerApp.factory("bugStorage", function(bugOperations){
