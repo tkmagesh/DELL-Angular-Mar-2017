@@ -1,0 +1,6 @@
+<h3>{{bug.name}}</h3>
+<div><i>[{{bug.id}}]</i></div>
+<div><span>Status :</span><b>{{bug.isClosed ? "Closed" : "Open"}}</b></div>
+<p>{{bug.description}}</p>
+<hr>
+<div>Created At : {{bug.createdAt | elapsed}}</div>
