@@ -134,15 +134,18 @@
 		
 
 
-		bugTrackerApp.controller("bugsController", function($scope, bugService){
+		bugTrackerApp.controller("bugsController", function($scope, bugService, $q){
 			
 			$scope.bugs = []
-			bugService
+			function loadBugs(){
+				bugService
 				.getAll()
 				.then(function(bugs){
 					$scope.bugs = bugs;
 				});
-			
+			}
+			loadBugs();
+
 			$scope.addNew = function(bugName){
 				bugService
 					.addNew(bugName)
@@ -158,16 +161,26 @@
 			};
 
 			$scope.removeClosed = function(){
-				for(var i=$scope.bugs.length-1; i >=0; i--){
+				/*for(var i=$scope.bugs.length-1; i >=0; i--){
 					if ($scope.bugs[i].isClosed){
 						bugService
 							.remove($scope.bugs[i])
-							.then(function(){
-								console.log('remove bug [index = ' + i + ']');
-								$scope.bugs.splice(i,1);
-							})
+							.then((function(index){
+								return function(){
+									$scope.bugs.splice(index,1);
+								}
+							})(i));
+							
 					}
-				}
+				}*/
+
+				var removeReqPromise = $scope
+					.bugs
+					.filter(bug => bug.isClosed)
+					.map(bug => bugService.remove(bug));
+				$q
+					.all(removeReqPromise)
+					.then(loadBugs);
 			};
 		});
 

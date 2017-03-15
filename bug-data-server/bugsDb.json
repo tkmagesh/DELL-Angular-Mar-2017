@@ -1,16 +1,22 @@
 {
   "bugs": [
     {
-      "id": 4,
-      "name": "Routing error",
+      "id": 11,
+      "name": "Data error",
       "isClosed": false,
-      "createdAt": "2017-02-25T11:23:16.380Z"
+      "createdAt": "2017-03-15T09:14:11.905Z"
     },
     {
-      "id": 5,
-      "name": "User actions error",
+      "id": 13,
+      "name": "Application error",
       "isClosed": false,
-      "createdAt": "2017-03-15T08:56:52.891Z"
+      "createdAt": "2017-03-15T09:16:26.279Z"
+    },
+    {
+      "id": 14,
+      "name": "Server error",
+      "isClosed": false,
+      "createdAt": "2017-03-15T09:16:31.871Z"
     }
   ],
   "employees": [
